@@ -1,5 +1,13 @@
+const Token = artifacts.require("zeppelin-solidity/contracts/token/ERC20/StandardToken.sol");
 const Registry = artifacts.require("Registry");
 
 module.exports = function(deployer) {
-	deployer.deploy(Registry, '0x06E58BD5DeEC63129a79c9cD3A653655EdBef820');
+    deployer.deploy(Token);
+    deployer.then(function()
+    {
+        return Token.deployed();
+    })
+    .then(token => {
+        deployer.deploy(Registry, token);
+    });
 };

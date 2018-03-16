@@ -17,7 +17,14 @@ contract Registry {
      */
     event LogWithdrawApplication(address sender);
 
-    uint constant MIN_AMOUNT = 20;   // prevents spamming and trolling
+    /**
+     * Event emitted when a new profile is challenged.
+     * @param sender The account that ran the action.
+     * @param driverAddress Address of a driver whose profile is being challenged.
+     */
+    event LogNewChallenge(address sender, address driverAddress);
+
+    uint constant public MIN_AMOUNT = 20;   // prevents spamming and trolling
 
     enum ProfileStatus {
         NOT_EXISTS,     // doesn't exist
@@ -31,7 +38,14 @@ contract Registry {
         ProfileStatus status;
     }
 
-    mapping(address => DriverProfile) driverProfiles;
+    struct Challenge {
+        address challenger;                             // Owner of Challenge
+        bool isResolved;                                // Indication of if challenge is resolved
+        mapping(address => bool) voterCanClaimReward;   // Indicates whether a voter has claimed a reward yet
+    }
+
+    mapping(address => DriverProfile) public driverProfiles;
+    mapping(address => Challenge) public challenges;
     StandardToken public token;
 
     /**
@@ -43,6 +57,10 @@ contract Registry {
     {
         token = StandardToken(tokenAddress);
     }
+
+    // --------------------
+    // PUBLISHER INTERFACE:
+    // --------------------
 
     /**
      * Called by a new driver.
@@ -89,6 +107,31 @@ contract Registry {
         return true;
     }
 
+    // --------------------
+    // TOKEN HOLDER INTERFACE:
+    // --------------------
+
+    /**
+     * Called by a token holder.
+     * Returns staked amount to a caller and deletes the profile.
+     * @return Whether the action was successful.
+     * Emits LogNewChallenge.
+     */
+    function challenge(address driverAddress)
+        public
+    {
+        require(isChallengable(driverAddress)); // can be challenged
+
+        // Takes tokens from challenger
+        require(token.transferFrom(msg.sender, this, MIN_AMOUNT));
+
+        challenges[driverAddress].challenger = msg.sender;
+        challenges[driverAddress].isResolved = false;
+        driverProfiles[msg.sender].status = ProfileStatus.IN_CHALLENGE;
+
+        LogNewChallenge(msg.sender, driverAddress);
+    }
+
     function driverExists(address driverAddress)
         constant
         public
@@ -98,6 +141,14 @@ contract Registry {
     }
 
     function isWithdrawable(address driverAddress)
+        constant
+        public
+        returns (bool)
+    {
+        return (driverProfiles[driverAddress].status == ProfileStatus.NEW);
+    }
+
+    function isChallengable(address driverAddress)
         constant
         public
         returns (bool)
