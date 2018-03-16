@@ -1,0 +1,32 @@
+{
+  "name": "uber-ethereum",
+  "version": "1.0.0",
+  "description": "Decentralized uber-like system on ethereum.",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "zeppelin-solidity": "^1.7.0"
+  },
+  "scripts": {
+    "test": "truffle test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dulguunbatmunkh/uber-ethereum.git"
+  },
+  "keywords": [
+    "Uber",
+    "Ethereum",
+    "Token",
+    "Curated",
+    "Registry"
+  ],
+  "author": "dulguun <dulguunbatmunkh@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dulguunbatmunkh/uber-ethereum/issues"
+  },
+  "homepage": "https://github.com/dulguunbatmunkh/uber-ethereum#readme"
+}
