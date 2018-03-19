@@ -25,7 +25,34 @@ contract('Registry', (accounts) => {
         minStakeAmount = registry.MIN_AMOUNT;
     });
 
-    describe('Function: apply', () => {
+    describe('Function: challenge', () => {
+
+        it('should allow a new driver to apply', async () => {
+            await token.approve(registry.address, 200, { from: driver0 });
+            await registry.apply(200, "s", { from: driver0 });
+
+            /*
+            // get the struct in the mapping
+            const result = await registry.listings.call(listing);
+            // check that Application is initialized correctly
+            assert.strictEqual(result[0].gt(0), true, 'challenge time < now');
+            assert.strictEqual(result[1], false, 'whitelisted != false');
+            assert.strictEqual(result[2], applicant, 'owner of application != address that applied');
+            assert.strictEqual(
+            result[3].toString(10),
+            paramConfig.minDeposit.toString(10),
+            'incorrect unstakedDeposit',
+        );*/
+        });
+
+        it('should not allow an existing driver to apply', async () => {
+            await registry.apply(20, "s", { from: driver0 })
+            await registry.apply(20, "s", { from: driver0 })
+        });
+
+    });
+
+    describe('Function: resolveChallenge', () => {
 
         it('should allow a new driver to apply', async () => {
             await token.approve(registry.address, 200, { from: driver0 });
