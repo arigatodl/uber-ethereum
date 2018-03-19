@@ -1,6 +1,6 @@
 pragma solidity ^0.4.18;
 
-import "./EIP20/EIP20.sol";
+import "./EIP20.sol";
 import "./Voting.sol";
 
 contract Registry {
@@ -62,6 +62,7 @@ contract Registry {
      */
     function apply(uint amount, string data)
         public
+        returns (bool)
     {
         require(!driverExists(msg.sender)); // is a new driver
         require(amount >= MIN_AMOUNT);
@@ -73,6 +74,7 @@ contract Registry {
         driverProfiles[msg.sender].data = data;
 
         LogNewApplication(msg.sender, amount, data);
+        return true;
     }
 
     /**

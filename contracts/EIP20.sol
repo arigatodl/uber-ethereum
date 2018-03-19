@@ -5,11 +5,11 @@ Implements EIP20 token standard: https://github.com/ethereum/EIPs/blob/master/EI
 
 pragma solidity ^0.4.18;
 
-import "./EIP20Interface.sol";
+contract EIP20 {
+    event Transfer(address indexed _from, address indexed _to, uint256 _value);
+    event Approval(address indexed _owner, address indexed _spender, uint256 _value);
 
-
-contract EIP20 is EIP20Interface {
-
+    uint256 public totalSupply;
     uint256 constant private MAX_UINT256 = 2**256 - 1;
     mapping (address => uint256) public balances;
     mapping (address => mapping (address => uint256)) public allowed;
@@ -55,6 +55,7 @@ contract EIP20 is EIP20Interface {
         Transfer(_from, _to, _value);
         return true;
     }
+
 
     function balanceOf(address _owner) public view returns (uint256 balance) {
         return balances[_owner];

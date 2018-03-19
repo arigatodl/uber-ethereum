@@ -1,6 +1,6 @@
 pragma solidity ^0.4.18;
 
-import "./EIP20/EIP20.sol";
+import "./EIP20.sol";
 
 contract Voting {
 
