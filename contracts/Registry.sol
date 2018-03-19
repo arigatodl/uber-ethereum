@@ -1,28 +1,15 @@
 pragma solidity ^0.4.18;
 
-import "zeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
+import "./EIP20/EIP20.sol";
+import "./Voting.sol";
 
 contract Registry {
 
-    /**
-     * Event emitted when a new driver applies.
-     * @param sender The account that ran the action.
-     * @param data The application information.
-     */
-    event LogNewApplication(address sender, string data);
+    event LogNewApplication(address sender, uint amount, string data);
+    event LogExit(address sender);
+    event LogNewChallenge(address sender, address driverAddr, uint pollId);
+    event LogChallengeResolved(address driverAddr, bool isAccepted);
 
-    /**
-     * Event emitted when a driver withdraws the application.
-     * @param sender The account that ran the action.
-     */
-    event LogWithdrawApplication(address sender);
-
-    /**
-     * Event emitted when a new profile is challenged.
-     * @param sender The account that ran the action.
-     * @param driverAddress Address of a driver whose profile is being challenged.
-     */
-    event LogNewChallenge(address sender, address driverAddress);
 
     uint constant public MIN_AMOUNT = 20;   // prevents spamming and trolling
 
@@ -36,66 +23,70 @@ contract Registry {
     struct DriverProfile {
         uint stakedAmount;
         ProfileStatus status;
+        string data;
     }
 
     struct Challenge {
         address challenger;                             // Owner of Challenge
+        address driverAddr;                             // driver address
         bool isResolved;                                // Indication of if challenge is resolved
         mapping(address => bool) voterCanClaimReward;   // Indicates whether a voter has claimed a reward yet
     }
 
-    mapping(address => DriverProfile) public driverProfiles;
-    mapping(address => Challenge) public challenges;
-    StandardToken public token;
+    mapping(address => DriverProfile) private driverProfiles;
+    mapping(uint => Challenge) public challenges;
+    EIP20 public token;
+    Voting public voting;
 
     /**
      * Constructor
-     * @param tokenAddress ERC20 token address.
+     * @param tokenAddr ERC20 token address.
      */
-    function Registry(address tokenAddress)
+    function Registry(address tokenAddr, address votingAddr)
         public
     {
-        token = StandardToken(tokenAddress);
+        token = EIP20(tokenAddr);
+        voting = Voting(votingAddr);
     }
 
     // --------------------
-    // PUBLISHER INTERFACE:
+    // DRIVER INTERFACE:
     // --------------------
 
     /**
      * Called by a new driver.
-     * Takes staking token and creates the profile.
+     * Takes staking token and driver information then creates the profile.
      * @param amount The number of ERC20 tokens a driver is willing to stake.
      * @param data Information of a driver.
-     * @return Whether the action was successful.
      * Emits LogNewApplication.
      */
     function apply(uint amount, string data)
         public
     {
-        require(!driverExists(msg.sender)); // is a new driver
-        require(amount >= MIN_AMOUNT);
+        //require(!driverExists(msg.sender)); // is a new driver
+        //require(amount >= MIN_AMOUNT);
 
-        require(token.transferFrom(msg.sender, this, amount));
+        //require(token.transferFrom(msg.sender, this, amount));
 
-        driverProfiles[msg.sender].status = ProfileStatus.NEW;
-        driverProfiles[msg.sender].stakedAmount = amount;
+        //driverProfiles[msg.sender].status = ProfileStatus.NEW;
+        //driverProfiles[msg.sender].stakedAmount = amount;
+        //driverProfiles[msg.sender].data = data;
 
-        LogNewApplication(msg.sender, data);
+        LogNewApplication(msg.sender, amount, data);
     }
 
     /**
      * Called by an owner of the application.
      * Returns staked amount to a caller and deletes the profile.
      * @return Whether the action was successful.
-     * Emits LogWithdrawApplication.
+     * Emits LogExit.
      */
-    function withdraw()
+    function exit()
         public
         returns (bool)
     {
-        require(driverExists(msg.sender));      // already exists
-        require(isWithdrawable(msg.sender));    // application can be withdrawn
+        require(driverExists(msg.sender));  // already exists
+        require(isExitable(msg.sender));    // can be removed
 
         // transfer staked amount
         if (driverProfiles[msg.sender].stakedAmount > 0)
@@ -103,7 +94,7 @@ contract Registry {
 
         delete driverProfiles[msg.sender];
 
-        LogWithdrawApplication(msg.sender);
+        LogExit(msg.sender);
         return true;
     }
 
@@ -117,43 +108,90 @@ contract Registry {
      * @return Whether the action was successful.
      * Emits LogNewChallenge.
      */
-    function challenge(address driverAddress)
+    function challenge(address driverAddr)
         public
     {
-        require(isChallengable(driverAddress)); // can be challenged
+        require(isChallengable(driverAddr)); // can be challenged
 
         // Takes tokens from challenger
         require(token.transferFrom(msg.sender, this, MIN_AMOUNT));
 
-        challenges[driverAddress].challenger = msg.sender;
-        challenges[driverAddress].isResolved = false;
-        driverProfiles[msg.sender].status = ProfileStatus.IN_CHALLENGE;
+        uint pollId = voting.startPoll(
+            uint(70),
+            100,
+            50
+        );
 
-        LogNewChallenge(msg.sender, driverAddress);
+        challenges[pollId].challenger = msg.sender;
+        challenges[pollId].driverAddr = driverAddr;
+        challenges[pollId].isResolved = false;
+        driverProfiles[driverAddr].status = ProfileStatus.IN_CHALLENGE;
+
+        LogNewChallenge(msg.sender, driverAddr, pollId);
     }
 
-    function driverExists(address driverAddress)
+    function resolveChallenge(uint challengeId)
+        public
+    {
+        require(challenges[challengeId].isResolved == false); // is not resolved yet
+        require(voting.isPollFinished(challengeId)); // poll must be finished
+
+        address driverAddr = challenges[challengeId].driverAddr;
+        challenges[challengeId].isResolved = true;
+
+        if (voting.isAccepted(challengeId)) {    // challenger has failed
+            driverProfiles[driverAddr].status = ProfileStatus.ACCEPTED;
+
+        } else {
+            address challengerAddr = challenges[challengeId].challenger;
+
+            // send winning reward
+            require(token.transfer(challengerAddr, driverProfiles[driverAddr].stakedAmount));
+            delete driverProfiles[driverAddr];
+        }
+
+        LogChallengeResolved(driverAddr, voting.isAccepted(challengeId));
+    }
+
+    function driverExists(address driverAddr)
         constant
         public
         returns (bool)
     {
-        return (driverProfiles[driverAddress].status != ProfileStatus.NOT_EXISTS);
+        require(driverProfiles[driverAddr].status != ProfileStatus.NOT_EXISTS);
+
+        return true;
     }
 
-    function isWithdrawable(address driverAddress)
+    function isExitable(address driverAddr)
         constant
         public
         returns (bool)
     {
-        return (driverProfiles[driverAddress].status == ProfileStatus.NEW);
+        require(driverExists(driverAddr));
+        require(driverProfiles[driverAddr].status != ProfileStatus.IN_CHALLENGE);
+
+        return true;
     }
 
-    function isChallengable(address driverAddress)
+    function isChallengable(address driverAddr)
         constant
         public
         returns (bool)
     {
-        return (driverProfiles[driverAddress].status == ProfileStatus.NEW);
+        require(driverProfiles[driverAddr].status == ProfileStatus.NEW);
+
+        return true;
+    }
+
+    function duringChallenge(address driverAddr)
+        constant
+        public
+        returns (bool)
+    {
+        require(driverProfiles[driverAddr].status == ProfileStatus.IN_CHALLENGE);
+
+        return true;
     }
 
 }
