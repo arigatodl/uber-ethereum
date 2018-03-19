@@ -63,14 +63,14 @@ contract Registry {
     function apply(uint amount, string data)
         public
     {
-        //require(!driverExists(msg.sender)); // is a new driver
-        //require(amount >= MIN_AMOUNT);
+        require(!driverExists(msg.sender)); // is a new driver
+        require(amount >= MIN_AMOUNT);
 
-        //require(token.transferFrom(msg.sender, this, amount));
+        require(token.transferFrom(msg.sender, this, amount));
 
-        //driverProfiles[msg.sender].status = ProfileStatus.NEW;
-        //driverProfiles[msg.sender].stakedAmount = amount;
-        //driverProfiles[msg.sender].data = data;
+        driverProfiles[msg.sender].status = ProfileStatus.NEW;
+        driverProfiles[msg.sender].stakedAmount = amount;
+        driverProfiles[msg.sender].data = data;
 
         LogNewApplication(msg.sender, amount, data);
     }
@@ -158,9 +158,7 @@ contract Registry {
         public
         returns (bool)
     {
-        require(driverProfiles[driverAddr].status != ProfileStatus.NOT_EXISTS);
-
-        return true;
+        return (driverProfiles[driverAddr].status != ProfileStatus.NOT_EXISTS);
     }
 
     function isExitable(address driverAddr)
@@ -168,10 +166,7 @@ contract Registry {
         public
         returns (bool)
     {
-        require(driverExists(driverAddr));
-        require(driverProfiles[driverAddr].status != ProfileStatus.IN_CHALLENGE);
-
-        return true;
+        return (driverExists(driverAddr) && driverProfiles[driverAddr].status != ProfileStatus.IN_CHALLENGE);
     }
 
     function isChallengable(address driverAddr)
@@ -179,9 +174,7 @@ contract Registry {
         public
         returns (bool)
     {
-        require(driverProfiles[driverAddr].status == ProfileStatus.NEW);
-
-        return true;
+        return (driverProfiles[driverAddr].status == ProfileStatus.NEW);
     }
 
     function duringChallenge(address driverAddr)
@@ -189,9 +182,7 @@ contract Registry {
         public
         returns (bool)
     {
-        require(driverProfiles[driverAddr].status == ProfileStatus.IN_CHALLENGE);
-
-        return true;
+        return (driverProfiles[driverAddr].status == ProfileStatus.IN_CHALLENGE);
     }
 
 }
