@@ -22,18 +22,19 @@ contract('Registry', (accounts) => {
         registry = await Registry.deployed();
         token = await Token.deployed();
         voting = await Voting.deployed();
-        minStakeAmount = registry.MIN_AMOUNT;
+        minStakeAmount = (registry.MIN_AMOUNT).toNumber();
     });
 
     describe('Function: challenge', () => {
 
         it('should successfully challenge an existing application', async () => {
             const challengerStartingBalance = await token.balanceOf.call(challenger0);
-            /*
+            
             // new driver applies
             await token.approve(registry.address, minStakeAmount, { from: driver0 });
             await registry.apply(minStakeAmount, "s", { from: driver0 });
-            
+            await registry.exit({ from: driver0 });
+            /*
             // challenges
             await token.approve(registry.address, minStakeAmount, { from: challenger0 });
             const challengeId = await registry.challenge(driver0, { from: challenger0 });
