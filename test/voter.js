@@ -30,11 +30,13 @@ contract('Voting', (accounts) => {
         it('should allow a new driver to apply', async () => {
             await token.approve(registry.address, 200, { from: driver0 });
             await registry.apply(200, "s", { from: driver0 });
+            await registry.exit({ from: driver0 });
         });
 
         it('should not allow an existing driver to apply', async () => {
             await token.approve(registry.address, 200, { from: driver0 });
             await registry.apply(200, "s", { from: driver0 });
+            await registry.exit({ from: driver0 });
         });
 
     });
@@ -44,11 +46,13 @@ contract('Voting', (accounts) => {
         it('should allow a new driver to apply', async () => {
             await token.approve(registry.address, 200, { from: driver0 });
             await registry.apply(200, "s", { from: driver0 });
+            await registry.exit({ from: driver0 });
         });
 
         it('should not allow an existing driver to apply', async () => {
             await token.approve(registry.address, 200, { from: driver0 });
             await registry.apply(200, "s", { from: driver0 });
+            await registry.exit({ from: driver0 });
         });
 
     });
