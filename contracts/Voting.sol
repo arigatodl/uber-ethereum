@@ -8,10 +8,9 @@ contract Voting {
     event LogVoteRevealed(address sender, uint pollId, uint numTokens, bool doesAccept);
     event LogPollStarted(uint voteThreshold, uint commitDuration, uint revealDuration, uint pollId);
 
-
     uint constant public ACCEPT_RATIO = 70;
-    uint constant public COMMIT_DATE = 100;
-    uint constant public REVEAL_DATE = 50;
+    uint constant public COMMIT_DATE = 2;
+    uint constant public REVEAL_DATE = 1;
 
     struct Poll {
         uint commitEndDate; // expiration date of commit period
@@ -21,20 +20,12 @@ contract Voting {
         uint acceptRatio;   // minimum ratio required for accepting
     }
 
-    // ============
-    // STATE VARIABLES:
-    // ============
-
     uint public pollCnt;
 
     mapping(uint => Poll) public pollMap;
     mapping(bytes32 => uint) private hiddenMessages;
 
     EIP20 public token;
-
-    // ============
-    // CONSTRUCTOR:
-    // ============
 
     /**
      * Constructor
@@ -61,6 +52,7 @@ contract Voting {
      */
     function commitVote(uint pollId, bytes32 secretHash, uint amount)
         public
+        returns (bool)
     {
         require(duringCommitPeriod(pollId));
         require(token.transferFrom(msg.sender, this, amount));
@@ -70,6 +62,7 @@ contract Voting {
         saveHiddenMessage(UUID, "hash", uint(secretHash));
 
         LogVoteCommitted(msg.sender, pollId, amount);
+        return true;
     }
 
 
@@ -168,9 +161,7 @@ contract Voting {
         public
         returns (bool)
     {
-        require(pollMap[pollId].commitEndDate <= block.timestamp);
-
-        return true;
+        return (pollMap[pollId].commitEndDate >= block.timestamp);
     }
 
     function duringRevealPeriod(uint pollId)
@@ -178,8 +169,9 @@ contract Voting {
         public
         returns (bool)
     {
-        require(pollMap[pollId].revealEndDate <= block.timestamp);
-        require(pollMap[pollId].commitEndDate > block.timestamp);
+        return (
+            pollMap[pollId].revealEndDate >= block.timestamp &&
+            pollMap[pollId].commitEndDate < block.timestamp);
 
         return true;
     }
