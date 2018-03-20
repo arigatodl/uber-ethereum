@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Decentralized uber-like system</title>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+  <script src="./MatchMaker.js"></script>
+</head>
+<body>
+  <h1>Start trip</h1>
+  <br><label for="tollbooth">Tollbooth address:</label><input type="text" id="tollbooth" placeholder="e.g., 0x93e66d9baea28c17d9fc393b53e3fbdd76899dae"></input>
+  <br><br><button id="send" onclick="App.addTollBooth()">Add Toll Booth</button>
+  <br><br>
+  <h1>Complete trip</h1>
+  <br><label for="entrybooth">Entry booth address:</label><input type="text" id="entrybooth" placeholder="e.g., 0x93e66d9baea28c17d9fc393b53e3fbdd76899dae"></input>
+  <br><label for="exitbooth">Exit booth address:</label><input type="text" id="exitbooth" placeholder="e.g., 0x93e66d9baea28c17d9fc393b53e3fbdd76899dae"></input>
+  <br><label for="price">Price amount:</label><input type="number" id="price" placeholder="e.g., 1"></input>
+  <br><br><button id="send" onclick="App.setRoutePrice()">Add Base Route price</button>
+  <br><br>
+  <span id="status"></span>
+</body>
+</html>

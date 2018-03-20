@@ -7,14 +7,18 @@
     "test": "test"
   },
   "dependencies": {
+    "copy-webpack-plugin": "^4.5.1",
     "ethjs": "^0.3.3",
-    "zeppelin-solidity": "^1.7.0"
+    "truffle-contract": "^3.0.4",
+    "webpack": "^4.1.1"
   },
   "devDependencies": {
     "coveralls": "^2.13.1",
-    "solidity-coverage": "https://github.com/sc-forks/solidity-coverage.git"
+    "solidity-coverage": "https://github.com/sc-forks/solidity-coverage.git",
+    "webpack-cli": "^2.0.12"
   },
   "scripts": {
+    "build": "webpack --config webpack.config.js",
     "test": "truffle test",
     "coverage": "./node_modules/.bin/solidity-coverage"
   },

@@ -19,7 +19,7 @@ contract MatchMaker {
         address passengerAddr;
     }
 
-    mapping(uint => Driver) listings;
+    mapping(uint => Driver) private listings;
 
     uint listingsCnt;
     Registry public registry;
