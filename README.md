@@ -4,8 +4,21 @@
 
 Decentralized uber-like system on ethereum  
 
-To run unit tests, clone this repository, and run:
+## To run unit tests, clone this repository, and run:
 ```
 $ npm install
 $ npm test
+```
+
+## Defining the token properties
+You'll need to modify a JSON file (`conf/config.json`):
+```json
+{
+  "token": {
+    "decimals": "5",
+    "name": "DriverToken",
+    "symbol": "DRT",
+    "supply": "21000000"
+  }
+}
 ```
