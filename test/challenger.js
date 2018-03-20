@@ -46,8 +46,8 @@ contract('Registry', (accounts) => {
             );
             
             assert.strictEqual(
-                challengerStartingBalance.toString(10), (challengerFinalBalance-minStakeAmount).toString(10),
-                'challenger staking is not deducting correctly',
+                challengerStartingBalance, challengerFinalBalance - minStakeAmount,
+                'challenger staking is not deducting correctly'
             );
         });
 
