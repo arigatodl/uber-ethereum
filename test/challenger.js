@@ -22,7 +22,7 @@ contract('Registry', (accounts) => {
         registry = await Registry.deployed();
         token = await Token.deployed();
         voting = await Voting.deployed();
-        minStakeAmount = (registry.MIN_AMOUNT).toNumber();
+        minStakeAmount = 20;
     });
 
     describe('Function: challenge', () => {
