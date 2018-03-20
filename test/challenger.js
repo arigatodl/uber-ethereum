@@ -41,12 +41,12 @@ contract('Registry', (accounts) => {
             const challengerFinalBalance = await token.balanceOf.call(challenger0);
             
             assert.strictEqual(
-                challengeId, 1,
+                challengeId.toNumber(), 1,
                 'challenge id is not increasing correctly'
             );
             
             assert.strictEqual(
-                challengerStartingBalance, challengerFinalBalance - minStakeAmount,
+                challengerStartingBalance.toNumber(), challengerFinalBalance.toNumber() - minStakeAmount.toNumber(),
                 'challenger staking is not deducting correctly'
             );
         });
