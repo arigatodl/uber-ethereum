@@ -27,10 +27,28 @@ contract('Registry', (accounts) => {
 
     describe('Function: challenge', () => {
 
-        it('should allow a new driver to apply', async () => {
-            await token.approve(registry.address, 200, { from: driver0 });
-            await registry.apply(200, "s", { from: driver0 });
-            await registry.exit({ from: driver0 });
+        it('should successfully challenge an existing application', async () => {
+            const challengerStartingBalance = await token.balanceOf.call(challenger0);
+            
+            // new driver applies
+            await token.approve(registry.address, minStakeAmount, { from: driver0 });
+            await registry.apply(minStakeAmount, "s", { from: driver0 });
+            
+            // challenges
+            await token.approve(registry.address, minStakeAmount, { from: challenger0 });
+            const challengeId = await registry.challenge(driver0, { from: challenger0 });
+            
+            const challengerFinalBalance = await token.balanceOf.call(challenger0);
+            
+            assert.strictEqual(
+                challengeId, 1,
+                'challenge id is not increasing correctly'
+            );
+            
+            assert.strictEqual(
+                challengerStartingBalance.toString(10), (challengerFinalBalance-minStakeAmount).toString(10),
+                'challenger staking is not deducting correctly',
+            );
         });
 
         it('should not allow an existing driver to apply', async () => {
