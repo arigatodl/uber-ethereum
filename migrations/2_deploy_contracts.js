@@ -8,7 +8,7 @@ module.exports = function(deployer, network, accounts) {
     const config = JSON.parse(fs.readFileSync('./conf/config.json'));
     
     async function distributeTokens() {
-        const _token = await Token.deployed();
+        const token = await Token.deployed();
 
         var distAmount = config.token.supply / accounts.length;
         for (var i = 1; i < accounts.length; i++) { // skip owner
