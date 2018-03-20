@@ -5,9 +5,8 @@ const Registry = artifacts.require("Registry");
 const fs = require('fs');
 
 module.exports = function(deployer, network, accounts) {
-    let token;
     const config = JSON.parse(fs.readFileSync('./conf/config.json'));
-
+    
     async function distributeTokens() {
         const _token = await Token.deployed();
 
@@ -16,25 +15,13 @@ module.exports = function(deployer, network, accounts) {
             await token.transfer( accounts[i], distAmount);
         }
     }
-
-    deployer.deploy(
-        Token, config.token.supply, config.token.name, config.token.decimals,
-        config.token.symbol
-    )
-    .then(function() {
-        return Token.deployed();
+    
+    deployer.then(async () => {
+        await deployer.deploy(Token, config.token.supply, config.token.name, config.token.decimals,
+            config.token.symbol);
+        await deployer.deploy(Voting, Token.address);
+        await deployer.deploy(Registry, Token.address, Voting.address);
+        
+        await distributeTokens();
     })
-    .then(_token => {
-        token = _token;
-
-        deployer.deploy(Voting, token.address);
-    })
-    .then(function() {
-        return Voting.deployed();
-    })
-    .then(_voting => {
-        deployer.deploy(Registry, token.address, _voting.address);
-    })
-    .then(async () => distributeTokens())
-
 };
