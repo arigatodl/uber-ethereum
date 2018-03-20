@@ -33,24 +33,23 @@ contract('Registry', (accounts) => {
             // new driver applies
             await token.approve(registry.address, minStakeAmount, { from: driver0 });
             await registry.apply(minStakeAmount, "s", { from: driver0 });
-            await registry.exit({ from: driver0 });
-            /*
+            
             // challenges
             await token.approve(registry.address, minStakeAmount, { from: challenger0 });
             const challengeId = await registry.challenge(driver0, { from: challenger0 });
             
-            const challengerFinalBalance = await token.balanceOf(challenger0);*/
+            const challengerFinalBalance = await token.balanceOf.call(challenger0);
             
-            /*assert.strictEqual(
+            assert.strictEqual(
                 challengeId.toString(10), "1",
                 'challenge id is not increasing correctly'
-            );*/
+            );
             
-            //const expectedFinalBalance = challengerStartingBalance.add(new BN(minStakeAmount, 10));
-            /*assert.strictEqual(
+            const expectedFinalBalance = challengerStartingBalance.add(new BN(minStakeAmount, 10));
+            assert.strictEqual(
                 expectedFinalBalance.toString(10), challengerFinalBalance.toString(10),
                 'challenger staking is not deducting correctly'
-            );*/
+            );
         });
 
         it('should not allow an existing driver to apply', async () => {
