@@ -112,6 +112,7 @@ contract Registry {
      */
     function challenge(address driverAddr)
         public
+        returns (uint)
     {
         require(isChallengable(driverAddr)); // can be challenged
 
@@ -130,6 +131,7 @@ contract Registry {
         driverProfiles[driverAddr].status = ProfileStatus.IN_CHALLENGE;
 
         LogNewChallenge(msg.sender, driverAddr, pollId);
+        return pollId;
     }
 
     function resolveChallenge(uint challengeId)
