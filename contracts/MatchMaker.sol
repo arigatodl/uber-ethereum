@@ -19,9 +19,9 @@ contract MatchMaker {
         address passengerAddr;
     }
 
-    mapping(uint => Driver) private listings;
+    mapping(uint => Driver) public listings;
 
-    uint listingsCnt;
+    uint public listingsCnt;
     Registry public registry;
     EIP20 public token;
 
@@ -106,5 +106,21 @@ contract MatchMaker {
         returns (bool)
     {
         return (listings[id].lockedAmount == 0);
+    }
+
+    function getListing(uint id)
+        public
+        constant
+        returns(address, uint)
+    {
+        return (listings[id].driverAddr, listings[id].farePerKM);
+    }
+
+    function getListingCount()
+        public
+        constant
+        returns(uint)
+    {
+        return listingsCnt;
     }
 }

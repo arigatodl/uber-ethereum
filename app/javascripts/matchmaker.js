@@ -16,7 +16,9 @@ var account;
 window.App = {
   start: function() {
     var self = this;
-    Regulator.setProvider(web3.currentProvider);
+    Token.setProvider(web3.currentProvider);
+    Registry.setProvider(web3.currentProvider);
+    MatchMaker.setProvider(web3.currentProvider);
     // Get the initial account balance so it can be displayed.
     web3.eth.getAccounts(function(err, accs) {
       if (err != null) {
@@ -35,80 +37,40 @@ window.App = {
     var status = document.getElementById("status");
     status.innerHTML = message;
   },
-  setAddress: function() {
+  getListings: async function() {
       var self = this;
-      var tollbooth = document.getElementById("tollbooth").value;
-      this.setStatus("Setting tollBoothOperator contract address... (please wait)");
-      TollBoothOperator = TollBoothOperator.at(tollbooth);
-      TollBoothOperator.setProvider(web3.currentProvider);
-      Regulator.deployed()
-        .then(regulator => {
-            return regulator.isOperator.call(TollBoothOperator);
-        })
-        .then(success => {
-            self.setStatus("Setting tollBoothOperator contract address success");
-        })
-        .catch(e => {
-            console.log(e);
-            self.setStatus("Setting tollBoothOperator contract address failed; see log.");
-        });
+
+      var matchmaker = await MatchMaker.deployed();
+      var listingSize = await matchmaker.getListingCount();
+      this.setStatus("Current listings size: " + listingSize.toNumber());
   },
-  addTollBooth: function() {
+  completeTrip: async function() {
       var self = this;
-      var tollbooth = document.getElementById("tollbooth").value;
-      this.setStatus("Adding tollbooth... (please wait)");
-      TollBoothOperator.deployed()
-        .then(tollBoothOpertor => {
-            return tollBoothOpertor.addTollBooth.call(tollbooth);
-        })
-        .then(success => {
-            self.setStatus("Tollbooth has been added successfully");
-        })
-        .catch(e => {
-            console.log(e);
-            self.setStatus("Error adding tollbooth; see log.");
-        });
+
+      var id = parseInt(document.getElementById("endId").value);
+      var km = parseInt(document.getElementById("endKM").value)
+      var matchmaker = await MatchMaker.deployed();
+
+      var price = MatchMaker.listings[id].farePerKM;
+      await matchmaker.completeTrip(id, km);
   },
-  setRoutePrice: function() {
+  startTrip: async function() {
       var self = this;
-      var entryBooth = document.getElementById("entryBooth").value;
-      var exitBooth = document.getElementById("exitBooth").value;
-      var price = parseInt(document.getElementById("price").value);
-      this.setStatus("Setting route price... (please wait)");
-      TollBoothOperator.deployed()
-        .then(tollBoothOpertor => {
-            return tollBoothOpertor.setRoutePrice.call(entryBooth, exitBooth, price);
-        })
-        .then(success => {
-            self.setStatus("Route price has been set successfully!");
-        })
-        .catch(e => {
-            console.log(e);
-            self.setStatus("Error setting route price; see log.");
-        });
-  },
-  setMultiplier: function() {
-      var self = this;
-      var type = parseInt(document.getElementById("type").value);
-      var multiplier = parseInt(document.getElementById("multiplier").value);
-      this.setStatus("Setting multiplier... (please wait)");
-      TollBoothOperator.deployed()
-        .then(tollBoothOpertor => {
-            return tollBoothOpertor.setMultiplier.call(type, multiplier);
-        })
-        .then(success => {
-            self.setStatus("Multiplier has been set successfully!");
-        })
-        .catch(e => {
-            console.log(e);
-            self.setStatus("Error setting multiplier; see log.");
-        });
+
+      var id = parseInt(document.getElementById("startId").value);
+      var km = parseInt(document.getElementById("startKM").value)
+      var matchmaker = await MatchMaker.deployed();
+      var token = await Token.deployed();
+
+      var price = matchmaker.listings[id].farePerKM;
+      await token.approve(matchmaker.address, price);
+      await matchmaker.startTrip(id, km, "test");
   }
 };
 window.addEventListener('load', function() {
   // Checking if Web3 has been injected by the browser (Mist/MetaMask)
   if (typeof web3 !== 'undefined') {
-    console.warn("Using web3 detected from external source. If you find that your accounts don't appear or you have 0 MetaCoin, ensure you've configured that source properly. If using MetaMask, see the following link. Feel free to delete this warning. :) http://truffleframework.com/tutorials/truffle-and-metamask")
+    console.warn("Using web3 detected from external source. If you find that your accounts don't appear, ensure you've configured that source properly. If using MetaMask, see the following link. Feel free to delete this warning. :) http://truffleframework.com/tutorials/truffle-and-metamask")
     // Use Mist/MetaMask's provider
     window.web3 = new Web3(web3.currentProvider);
   } else {
@@ -117,4 +79,5 @@ window.addEventListener('load', function() {
     window.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
   }
   App.start();
+  App.getListings();
 });

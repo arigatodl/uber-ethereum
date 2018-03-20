@@ -7,14 +7,14 @@
 </head>
 <body>
   <h1>Start trip</h1>
-  <br><label for="tollbooth">Tollbooth address:</label><input type="text" id="tollbooth" placeholder="e.g., 0x93e66d9baea28c17d9fc393b53e3fbdd76899dae"></input>
-  <br><br><button id="send" onclick="App.addTollBooth()">Add Toll Booth</button>
+  <br><label for="startId">Listing id:</label><input type="number" id="startId" placeholder="e.g., 1"></input>
+  <br><label for="startKM">Total (estimated) distance:</label><input type="number" id="startKM" placeholder="e.g., 1"></input>
+  <br><br><button id="send" onclick="App.startTrip()">Start</button>
   <br><br>
   <h1>Complete trip</h1>
-  <br><label for="entrybooth">Entry booth address:</label><input type="text" id="entrybooth" placeholder="e.g., 0x93e66d9baea28c17d9fc393b53e3fbdd76899dae"></input>
-  <br><label for="exitbooth">Exit booth address:</label><input type="text" id="exitbooth" placeholder="e.g., 0x93e66d9baea28c17d9fc393b53e3fbdd76899dae"></input>
-  <br><label for="price">Price amount:</label><input type="number" id="price" placeholder="e.g., 1"></input>
-  <br><br><button id="send" onclick="App.setRoutePrice()">Add Base Route price</button>
+  <br><label for="endId">Listing id:</label><input type="number" id="endId" placeholder="e.g., 1"></input>
+  <br><label for="endKM">Total (real) distance:</label><input type="number" id="endKM" placeholder="e.g., 1"></input>
+  <br><br><button id="send" onclick="App.completeTrip()">Complete</button>
   <br><br>
   <span id="status"></span>
 </body>
