@@ -189,4 +189,12 @@ contract Registry {
         return (driverProfiles[driverAddr].status == ProfileStatus.IN_CHALLENGE);
     }
 
+    function isAccepted(address driverAddr)
+        constant
+        public
+        returns (bool)
+    {
+        return (driverProfiles[driverAddr].status == ProfileStatus.ACCEPTED);
+    }
+
 }

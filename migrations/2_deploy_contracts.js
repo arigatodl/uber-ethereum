@@ -1,12 +1,13 @@
 const Token = artifacts.require("EIP20");
 const Voting = artifacts.require("Voting");
 const Registry = artifacts.require("Registry");
+const MatchMaker = artifacts.require("MatchMaker");
 
 const fs = require('fs');
 
 module.exports = function(deployer, network, accounts) {
     const config = JSON.parse(fs.readFileSync('./conf/config.json'));
-    
+
     async function distributeTokens() {
         const token = await Token.deployed();
 
@@ -15,12 +16,13 @@ module.exports = function(deployer, network, accounts) {
             await token.transfer( accounts[i], distAmount);
         }
     }
-    
+
     deployer.then(async () => {
         await deployer.deploy(Token, config.token.supply, config.token.name, config.token.decimals,
             config.token.symbol);
         await deployer.deploy(Voting, Token.address);
         await deployer.deploy(Registry, Token.address, Voting.address);
+        await deployer.deploy(MatchMaker, Registry.address, Token.address);
         
         await distributeTokens();
     })
