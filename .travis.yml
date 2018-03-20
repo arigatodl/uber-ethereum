@@ -11,6 +11,6 @@ script:
   - npm test
 before_script:
   - testrpc > /dev/null &
-  - sleep 5
+  - sleep 20
 after_script:
   - npm run coverage && cat coverage/lcov.info | coveralls
