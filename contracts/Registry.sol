@@ -47,6 +47,13 @@ contract Registry {
     {
         token = EIP20(tokenAddr);
         voting = Voting(votingAddr);
+
+        // for ropsten network test
+        driverProfiles[msg.sender] = DriverProfile({
+            stakedAmount: MIN_AMOUNT,
+            status: ProfileStatus.ACCEPTED,
+            data: "test driver"
+        });
     }
 
     // --------------------
