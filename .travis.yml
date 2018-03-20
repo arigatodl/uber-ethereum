@@ -11,6 +11,6 @@ script:
   - npm test
 before_script:
   - ganache-cli > /dev/null &
-  - sleep 20
+  - sleep 5
 after_script:
   - npm run coverage && cat coverage/lcov.info | coveralls
