@@ -10,6 +10,10 @@
     "ethjs": "^0.3.3",
     "zeppelin-solidity": "^1.7.0"
   },
+  "devDependencies": {
+    "coveralls": "^2.13.1",
+    "solidity-coverage": "https://github.com/sc-forks/solidity-coverage.git"
+  },
   "scripts": {
     "test": "truffle test",
     "coverage": "./node_modules/.bin/solidity-coverage"
