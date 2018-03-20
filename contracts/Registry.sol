@@ -11,7 +11,7 @@ contract Registry {
     event LogChallengeResolved(address driverAddr, bool isAccepted);
 
 
-    uint constant public MIN_AMOUNT = 20;   // prevents spamming and trolling
+    uint constant public MIN_AMOUNT = 2;   // prevents spamming and trolling
 
     enum ProfileStatus {
         NOT_EXISTS,     // doesn't exist
