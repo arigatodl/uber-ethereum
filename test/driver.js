@@ -46,8 +46,8 @@ contract('Registry', (accounts) => {
         });
 
         it('should not allow an existing driver to apply', async () => {
-            await registry.apply(20, "s", { from: driver0 })
-            await registry.apply(20, "s", { from: driver0 })
+            await token.approve(registry.address, 200, { from: driver0 });
+            await registry.apply(200, "s", { from: driver0 });
         });
 
     });
