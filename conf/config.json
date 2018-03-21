@@ -1,6 +1,6 @@
 {
   "token": {
-    "decimals": "5",
+    "decimals": "0",
     "name": "DriverToken",
     "symbol": "DRT",
     "supply": "21000000"
