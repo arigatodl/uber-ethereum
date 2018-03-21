@@ -22,3 +22,6 @@ You'll need to modify a JSON file (`conf/config.json`):
   }
 }
 ```
+
+## Sample frontend on AWS S3
+http://ubereth.s3-website-us-west-2.amazonaws.com/
